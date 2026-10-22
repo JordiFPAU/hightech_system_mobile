@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primarios
+
   static const primary     = Color(0xFF0EA5E9);
   static const primaryDark = Color(0xFF0284C7);
 
-  // Neutros
   static const textPrimary   = Color(0xFF1E293B);
   static const textSecondary = Color(0xFF475569);
   static const textMuted     = Color(0xFF94A3B8);
 
-  // Superficies
   static const background = Color(0xFFF8FAFC);
   static const surface    = Color(0xFFFFFFFF);
   static const border     = Color(0xFFE2E8F0);
   static const borderInput = Color(0xFFCBD5E1);
 
-  // Estados
   static const success     = Color(0xFF166534);
   static const successBg   = Color(0xFFDCFCE7);
   static const warning     = Color(0xFF854D0E);
@@ -37,7 +34,6 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.background,
       fontFamily: 'Roboto',
 
-      // AppBar
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.textPrimary,
@@ -50,7 +46,6 @@ class AppTheme {
         ),
       ),
 
-      // Inputs
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
@@ -76,7 +71,6 @@ class AppTheme {
         ),
       ),
 
-      // Botones
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
@@ -92,7 +86,6 @@ class AppTheme {
         ),
       ),
 
-      // Cards
       cardTheme: CardThemeData(
         color: AppColors.surface,
         elevation: 0,
@@ -105,7 +98,6 @@ class AppTheme {
   }
 }
 
-// Estilos de texto reutilizables
 class AppTextStyles {
   static const titulo = TextStyle(
     fontSize: 22,
@@ -136,7 +128,6 @@ class AppTextStyles {
   );
 }
 
-// Badges de estado reutilizables
 class AppBadges {
   static const estadoPedido = {
     'PENDIENTE':  {'bg': AppColors.warningBg, 'text': AppColors.warning},

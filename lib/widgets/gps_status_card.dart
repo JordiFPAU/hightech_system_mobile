@@ -23,7 +23,7 @@ class GpsStatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Estado visual
+
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
@@ -53,7 +53,6 @@ class GpsStatusCard extends StatelessWidget {
           ),
         ),
 
-        // Coordenadas
         if (latitud != null && longitud != null) ...[
           const SizedBox(height: 16),
           Card(

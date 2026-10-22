@@ -6,6 +6,8 @@ import 'login_screen.dart';
 import 'pedidos_screen.dart';
 import 'gps_screen.dart';
 
+import 'ruta_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -15,12 +17,21 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _authService = AuthService();
+  final _gpsController = GpsController();
   Usuario? _usuario;
 
   @override
   void initState() {
     super.initState();
     _cargarUsuario();
+    _gpsController.addListener(() => setState(() {}));
+    _gpsController.iniciar();
+  }
+
+  @override
+  void dispose() {
+    _gpsController.dispose();
+    super.dispose();
   }
 
   Future<void> _cargarUsuario() async {
@@ -91,16 +102,63 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(builder: (_) => const PedidosScreen()),
               ),
             ),
-            const SizedBox(height: 12),
             _ModuloCard(
-              icono: Icons.location_on_outlined,
-              titulo: 'GPS activo',
-              subtitulo: 'Enviar ubicación en tiempo real',
-              color: AppColors.success,
-    onTap: () => Navigator.push(
-    context,
-    MaterialPageRoute(builder: (_) => const GpsScreen()),
-    ), )
+              icono: Icons.route,
+              titulo: 'Mi ruta optimizada',
+              subtitulo: 'Ver entregas del día en orden óptimo',
+              color: AppColors.warning,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const RutaScreen()),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: _gpsController.activo
+                    ? AppColors.successBg
+                    : AppColors.background,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _gpsController.activo
+                        ? Icons.location_on
+                        : Icons.location_off,
+                    color: _gpsController.activo
+                        ? AppColors.success
+                        : AppColors.textMuted,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _gpsController.activo ? 'GPS activo' : 'Iniciando GPS...',
+                          style: AppTextStyles.etiqueta,
+                        ),
+                        if (_gpsController.latitud != null)
+                          Text(
+                            '${_gpsController.latitud!.toStringAsFixed(4)}, '
+                                '${_gpsController.longitud!.toStringAsFixed(4)}',
+                            style: AppTextStyles.muted,
+                          ),
+                      ],
+                    ),
+                  ),
+                  if (_gpsController.cargando)
+                    const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

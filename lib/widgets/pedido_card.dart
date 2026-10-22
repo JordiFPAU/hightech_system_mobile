@@ -25,7 +25,6 @@ class PedidoCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            // Header — factura + estado
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -53,7 +52,6 @@ class PedidoCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Cliente
             Row(
               children: [
                 const Icon(Icons.person_outline,
@@ -67,7 +65,6 @@ class PedidoCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
 
-            // Dirección
             if (pedido.puntoEntrega != null) ...[
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +83,6 @@ class PedidoCard extends StatelessWidget {
               const SizedBox(height: 6),
             ],
 
-            // Productos
             Row(
               children: [
                 const Icon(Icons.inventory_2_outlined,
@@ -106,7 +102,7 @@ class PedidoCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(99),
                     ),
                     child: const Text(
-                      '⚡ Urgente',
+                      'Urgente',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -122,7 +118,6 @@ class PedidoCard extends StatelessWidget {
             const Divider(height: 1),
             const SizedBox(height: 12),
 
-            // Botón cambiar estado
             SizedBox(
               width: double.infinity,
               height: 40,

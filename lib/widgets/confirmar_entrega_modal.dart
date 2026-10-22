@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import '../config/app_theme.dart';
-import '../models/pedido.dart';
 
 class ConfirmarEntregaModal extends StatefulWidget {
-  final Pedido pedido;
+  final String pedidoId;
+  final String clienteNombre;
+  final String? numeroFactura;
   final Future<bool> Function({
   required String estado,
   String? metodoPago,
@@ -12,7 +13,9 @@ class ConfirmarEntregaModal extends StatefulWidget {
 
   const ConfirmarEntregaModal({
     super.key,
-    required this.pedido,
+    required this.pedidoId,
+    required this.clienteNombre,
+    this.numeroFactura,
     required this.onConfirmar,
   });
 
@@ -85,7 +88,6 @@ class _ConfirmarEntregaModalState extends State<ConfirmarEntregaModal> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
-          // Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -98,7 +100,6 @@ class _ConfirmarEntregaModalState extends State<ConfirmarEntregaModal> {
           ),
           const SizedBox(height: 12),
 
-          // Info pedido
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -115,11 +116,11 @@ class _ConfirmarEntregaModalState extends State<ConfirmarEntregaModal> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.pedido.numeroFactura ?? 'Sin factura',
+                      widget.numeroFactura ?? 'Sin factura',
                       style: AppTextStyles.etiqueta,
                     ),
                     Text(
-                      widget.pedido.cliente?.nombre ?? '—',
+                      widget.clienteNombre,
                       style: AppTextStyles.muted,
                     ),
                   ],
@@ -129,7 +130,6 @@ class _ConfirmarEntregaModalState extends State<ConfirmarEntregaModal> {
           ),
           const SizedBox(height: 20),
 
-          // Error
           if (_error != null) ...[
             Container(
               padding: const EdgeInsets.all(10),
@@ -144,7 +144,6 @@ class _ConfirmarEntregaModalState extends State<ConfirmarEntregaModal> {
             const SizedBox(height: 12),
           ],
 
-          // Estado
           const Text('Estado de entrega *', style: AppTextStyles.etiqueta),
           const SizedBox(height: 8),
           Row(
@@ -185,7 +184,6 @@ class _ConfirmarEntregaModalState extends State<ConfirmarEntregaModal> {
           ),
           const SizedBox(height: 16),
 
-          // Método de pago
           const Text('Método de pago', style: AppTextStyles.etiqueta),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
@@ -200,7 +198,6 @@ class _ConfirmarEntregaModalState extends State<ConfirmarEntregaModal> {
           ),
           const SizedBox(height: 16),
 
-          // Observaciones
           const Text('Observaciones', style: AppTextStyles.etiqueta),
           const SizedBox(height: 8),
           TextFormField(
@@ -212,7 +209,6 @@ class _ConfirmarEntregaModalState extends State<ConfirmarEntregaModal> {
           ),
           const SizedBox(height: 24),
 
-          // Botón
           SizedBox(
             width: double.infinity,
             height: 52,

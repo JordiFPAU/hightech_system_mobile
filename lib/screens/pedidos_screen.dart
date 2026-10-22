@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import '../config/app_theme.dart';
+import '../controllers/pedidos_controller.dart';
 import '../models/pedido.dart';
-import '../models/usuario.dart';
-import '../services/auth_service.dart';
-import '../services/pedido_service.dart';
 import '../widgets/pedido_card.dart';
+import '../widgets/confirmar_entrega_modal.dart';
 
 class PedidosScreen extends StatefulWidget {
   const PedidosScreen({super.key});
@@ -14,70 +13,19 @@ class PedidosScreen extends StatefulWidget {
 }
 
 class _PedidosScreenState extends State<PedidosScreen> {
-  final _pedidoService = PedidoService();
-  final _authService = AuthService();
-
-  List<Pedido> _pedidos = [];
-  bool _cargando = true;
-  String? _error;
+  late final PedidosController _controller;
 
   @override
   void initState() {
     super.initState();
-    _cargarPedidos();
+    _controller = PedidosController();
+    _controller.addListener(() => setState(() {}));
   }
 
-  Future<void> _cargarPedidos() async {
-    try {
-      setState(() {
-        _cargando = true;
-        _error = null;
-      });
-
-      final usuario = await _authService.getUsuarioActual();
-      final token = await _authService.getToken();
-
-      if (usuario == null || token == null) return;
-
-      final pedidos = await _pedidoService.getPedidosPorRepartidor(
-        usuario.id,
-        token,
-      );
-
-      setState(() => _pedidos = pedidos);
-    } catch (e) {
-      setState(() => _error = 'No se pudieron cargar los pedidos.');
-    } finally {
-      setState(() => _cargando = false);
-    }
-  }
-
-  Future<void> _cambiarEstado(Pedido pedido, String nuevoEstado) async {
-    try {
-      final token = await _authService.getToken();
-      if (token == null) return;
-
-      await _pedidoService.actualizarEstado(pedido.id, nuevoEstado, token);
-      await _cargarPedidos();
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Estado actualizado a $nuevoEstado'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error al actualizar el estado'),
-            backgroundColor: AppColors.danger,
-          ),
-        );
-      }
-    }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   void _mostrarCambiarEstado(Pedido pedido) {
@@ -102,20 +50,66 @@ class _PedidosScreenState extends State<PedidosScreen> {
             ...['EN_RUTA', 'ENTREGADO', 'PARCIAL', 'FALLIDO']
                 .where((e) => e != pedido.estado)
                 .map((estado) => ListTile(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              leading: _iconoEstado(estado),
-              title: Text(estado, style: AppTextStyles.cuerpo),
-              onTap: () {
-                Navigator.pop(context);
-                _cambiarEstado(pedido, estado);
-              },
-            )),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      leading: _iconoEstado(estado),
+                      title: Text(estado, style: AppTextStyles.cuerpo),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        final exito =
+                            await _controller.cambiarEstado(pedido.id, estado);
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              exito
+                                  ? 'Estado actualizado a $estado'
+                                  : 'Error al actualizar el estado',
+                            ),
+                            backgroundColor:
+                                exito ? AppColors.success : AppColors.danger,
+                          ),
+                        );
+                      },
+                    )),
           ],
         ),
       ),
     );
+  }
+
+  void _abrirConfirmarEntrega(Pedido pedido) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => ConfirmarEntregaModal(
+        pedidoId: pedido.id,
+        clienteNombre: pedido.cliente?.nombre ?? '—',
+        numeroFactura: pedido.numeroFactura,
+        onConfirmar: ({
+          required String estado,
+          String? metodoPago,
+          String? observaciones,
+        }) =>
+            _controller.confirmarEntrega(
+          pedidoId: pedido.id,
+          estado: estado,
+          metodoPago: metodoPago,
+          observaciones: observaciones,
+        ),
+      ),
+    ).then((exito) {
+      if (exito == true && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Entrega registrada correctamente'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    });
   }
 
   Widget _iconoEstado(String estado) {
@@ -123,11 +117,11 @@ class _PedidosScreenState extends State<PedidosScreen> {
     final color = colores?['text'] ?? AppColors.textMuted;
     final bg = colores?['bg'] ?? AppColors.border;
 
-    final iconos = {
-      'EN_RUTA':   Icons.directions_car_outlined,
+    const iconos = {
+      'EN_RUTA': Icons.directions_car_outlined,
       'ENTREGADO': Icons.check_circle_outline,
-      'PARCIAL':   Icons.remove_circle_outline,
-      'FALLIDO':   Icons.cancel_outlined,
+      'PARCIAL': Icons.remove_circle_outline,
+      'FALLIDO': Icons.cancel_outlined,
     };
 
     return Container(
@@ -149,55 +143,55 @@ class _PedidosScreenState extends State<PedidosScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _cargarPedidos,
+            onPressed: _controller.cargarPedidos,
           ),
         ],
       ),
-      body: _cargando
+      body: _controller.cargando
           ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline,
-                size: 48, color: AppColors.danger),
-            const SizedBox(height: 12),
-            Text(_error!, style: AppTextStyles.cuerpo),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _cargarPedidos,
-              child: const Text('Reintentar'),
-            ),
-          ],
-        ),
-      )
-          : _pedidos.isEmpty
-          ? const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.assignment_outlined,
-                size: 64, color: AppColors.textMuted),
-            SizedBox(height: 16),
-            Text('No tienes pedidos asignados',
-                style: AppTextStyles.cuerpo),
-          ],
-        ),
-      )
-          : RefreshIndicator(
-        onRefresh: _cargarPedidos,
-        child: ListView.separated(
-          padding: const EdgeInsets.all(16),
-          itemCount: _pedidos.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
-          itemBuilder: (_, index) => PedidoCard(
-            pedido: _pedidos[index],
-            onCambiarEstado: () =>
-                _mostrarCambiarEstado(_pedidos[index]),
-          ),
-        ),
-      ),
+          : _controller.error != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline,
+                          size: 48, color: AppColors.danger),
+                      const SizedBox(height: 12),
+                      Text(_controller.error!, style: AppTextStyles.cuerpo),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _controller.cargarPedidos,
+                        child: const Text('Reintentar'),
+                      ),
+                    ],
+                  ),
+                )
+              : _controller.pedidos.isEmpty
+                  ? const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.assignment_outlined,
+                              size: 64, color: AppColors.textMuted),
+                          SizedBox(height: 16),
+                          Text('No tienes pedidos asignados',
+                              style: AppTextStyles.cuerpo),
+                        ],
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: _controller.cargarPedidos,
+                      child: ListView.separated(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _controller.pedidos.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (_, index) => PedidoCard(
+                          pedido: _controller.pedidos[index],
+                          onCambiarEstado: () =>
+                              _mostrarCambiarEstado(_controller.pedidos[index]),
+                        ),
+                      ),
+                    ),
     );
   }
 }

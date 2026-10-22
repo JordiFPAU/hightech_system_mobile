@@ -7,7 +7,6 @@ class GpsService {
   WebSocketChannel? _channel;
   bool _conectado = false;
 
-
   Future<bool> solicitarPermisos() async {
     LocationPermission permiso = await Geolocator.checkPermission();
 
@@ -23,7 +22,6 @@ class GpsService {
         permiso == LocationPermission.always;
   }
 
-
   Future<Position?> obtenerUbicacion() async {
     final tienePermiso = await solicitarPermisos();
     if (!tienePermiso) return null;
@@ -33,20 +31,16 @@ class GpsService {
     );
   }
 
-
   void conectar(String repartidorId) {
     try {
       _channel = WebSocketChannel.connect(
         Uri.parse('${ApiConfig.wsGeoUrl}/gps/$repartidorId'),
       );
       _conectado = true;
-      print('WebSocket GPS conectado para repartidor: $repartidorId');
     } catch (e) {
-      print('Error conectando WebSocket: $e');
       _conectado = false;
     }
   }
-
 
   void enviarCoordenada({
     required double latitud,
@@ -64,7 +58,6 @@ class GpsService {
     _channel!.sink.add(payload);
   }
 
-  // Desconectar
   void desconectar() {
     _channel?.sink.close();
     _conectado = false;

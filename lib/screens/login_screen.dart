@@ -67,7 +67,6 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
 
-                // Logo
                 Container(
                   width: 80,
                   height: 80,
@@ -87,7 +86,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Text('Ingresa a tu cuenta', style: AppTextStyles.muted),
                 const SizedBox(height: 32),
 
-                // Card formulario
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
@@ -101,7 +99,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
 
-                        // Error
                         if (_error != null) ...[
                           Container(
                             padding: const EdgeInsets.all(12),
@@ -121,7 +118,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           const SizedBox(height: 16),
                         ],
 
-                        // Email
                         const Text('Correo electrónico', style: AppTextStyles.etiqueta),
                         const SizedBox(height: 6),
                         TextFormField(
@@ -138,7 +134,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Password
                         const Text('Contraseña', style: AppTextStyles.etiqueta),
                         const SizedBox(height: 6),
                         TextFormField(
@@ -164,7 +159,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Botón
                         ElevatedButton(
                           onPressed: _cargando ? null : _manejarLogin,
                           child: _cargando
