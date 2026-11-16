@@ -8,10 +8,7 @@ class PedidoService {
       String repartidorId, String token) async {
     final response = await http.get(
       Uri.parse('${ApiConfig.logisticaUrl}/pedidos/repartidor/$repartidorId'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
+      headers: ApiConfig.headersAuth(token),
     );
 
     if (response.statusCode == 200) {
@@ -26,10 +23,7 @@ class PedidoService {
       String pedidoId, String estado, String token) async {
     final response = await http.put(
       Uri.parse('${ApiConfig.logisticaUrl}/pedidos/$pedidoId/estado'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
+      headers: ApiConfig.headersAuth(token),
       body: jsonEncode({'estado': estado}),
     );
 

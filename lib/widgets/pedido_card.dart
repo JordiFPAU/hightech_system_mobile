@@ -12,133 +12,135 @@ class PedidoCard extends StatelessWidget {
     required this.onCambiarEstado,
   });
 
+  static const _estadoColor = {
+    'PENDIENTE': Color(0xFFF59E0B),
+    'EN_RUTA':   Color(0xFF0EA5E9),
+    'ENTREGADO': Color(0xFF22C55E),
+    'PARCIAL':   Color(0xFFF97316),
+    'FALLIDO':   Color(0xFFEF4444),
+  };
+
+  static const _accionColor = Color(0xFF3B82F6);
+
   @override
   Widget build(BuildContext context) {
-    final colores = AppBadges.estadoPedido[pedido.estado];
-    final colorTexto = colores?['text'] ?? AppColors.textMuted;
-    final colorBg = colores?['bg'] ?? AppColors.border;
+    final estadoColor = _estadoColor[pedido.estado] ?? AppColors.textMuted;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  pedido.numeroFactura ?? 'Sin factura',
-                  style: AppTextStyles.subtitulo,
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: colorBg,
-                    borderRadius: BorderRadius.circular(99),
-                  ),
-                  child: Text(
-                    pedido.estado,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: colorTexto,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            Row(
-              children: [
-                const Icon(Icons.person_outline,
-                    size: 16, color: AppColors.textMuted),
-                const SizedBox(width: 6),
-                Text(
-                  pedido.cliente?.nombre ?? '—',
-                  style: AppTextStyles.cuerpo,
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-
-            if (pedido.puntoEntrega != null) ...[
+    return Material(
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onCambiarEstado,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border),
+          ),
+          padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.location_on_outlined,
-                      size: 16, color: AppColors.textMuted),
-                  const SizedBox(width: 6),
                   Expanded(
-                    child: Text(
-                      pedido.puntoEntrega!.direccionTexto,
-                      style: AppTextStyles.muted,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              pedido.numeroFactura ?? 'Sin factura',
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                                letterSpacing: -0.3,
+                              ),
+                            ),
+                            if (pedido.esUrgente) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFF59E0B),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          pedido.cliente?.nombre ?? '—',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        pedido.estado,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: estadoColor,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "${pedido.detalles.length} producto${pedido.detalles.length != 1 ? 's' : ''}",
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
-            ],
-
-            Row(
-              children: [
-                const Icon(Icons.inventory_2_outlined,
-                    size: 16, color: AppColors.textMuted),
-                const SizedBox(width: 6),
-                Text(
-                  '${pedido.detalles.length} producto${pedido.detalles.length != 1 ? 's' : ''}',
-                  style: AppTextStyles.muted,
-                ),
-                if (pedido.esUrgente) ...[
-                  const SizedBox(width: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.warningBg,
-                      borderRadius: BorderRadius.circular(99),
-                    ),
-                    child: const Text(
-                      'Urgente',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.warning,
+              if (pedido.puntoEntrega != null) ...[
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Icon(Icons.location_on_outlined,
+                        size: 14, color: AppColors.textMuted),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        pedido.puntoEntrega!.direccionTexto,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textMuted,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Cambiar estado',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: _accionColor,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    const Icon(Icons.chevron_right,
+                        size: 16, color: _accionColor),
+                  ],
+                ),
               ],
-            ),
-
-            const SizedBox(height: 12),
-            const Divider(height: 1),
-            const SizedBox(height: 12),
-
-            SizedBox(
-              width: double.infinity,
-              height: 40,
-              child: OutlinedButton(
-                onPressed: onCambiarEstado,
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.primary),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'Cambiar estado',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -13,10 +13,7 @@ class EntregaService {
   }) async {
     final response = await http.post(
       Uri.parse('${ApiConfig.logisticaUrl}/entregas'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
+      headers: ApiConfig.headersAuth(token),
       body: jsonEncode({
         'pedidoId': pedidoId,
         'repartidorId': repartidorId,

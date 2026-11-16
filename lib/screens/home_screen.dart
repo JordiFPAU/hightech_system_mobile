@@ -7,6 +7,7 @@ import 'pedidos_screen.dart';
 import 'gps_screen.dart';
 
 import 'ruta_screen.dart';
+import '../controllers/gps_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -55,6 +56,21 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('High Tech'),
         actions: [
+          if (_gpsController.cargando)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+              ),
+            )
+          else
+            Icon(
+              _gpsController.activo ? Icons.location_on : Icons.location_off,
+              color: _gpsController.activo ? AppColors.primary : AppColors.textMuted,
+            ),
+          const SizedBox(width: 4),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: _cerrarSesion,
@@ -72,20 +88,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 'Bienvenido, ${_usuario!.nombre}',
                 style: AppTextStyles.titulo,
               ),
-              const SizedBox(height: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.infoBg,
-                  borderRadius: BorderRadius.circular(99),
-                ),
-                child: Text(
-                  _usuario!.rol.nombre,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.info,
-                  ),
+              const SizedBox(height: 6),
+              Text(
+                _usuario!.rol.nombre,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textMuted,
+                  letterSpacing: 0.4,
                 ),
               ),
               const SizedBox(height: 32),
@@ -110,53 +119,6 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const RutaScreen()),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: _gpsController.activo
-                    ? AppColors.successBg
-                    : AppColors.background,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    _gpsController.activo
-                        ? Icons.location_on
-                        : Icons.location_off,
-                    color: _gpsController.activo
-                        ? AppColors.success
-                        : AppColors.textMuted,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _gpsController.activo ? 'GPS activo' : 'Iniciando GPS...',
-                          style: AppTextStyles.etiqueta,
-                        ),
-                        if (_gpsController.latitud != null)
-                          Text(
-                            '${_gpsController.latitud!.toStringAsFixed(4)}, '
-                                '${_gpsController.longitud!.toStringAsFixed(4)}',
-                            style: AppTextStyles.muted,
-                          ),
-                      ],
-                    ),
-                  ),
-                  if (_gpsController.cargando)
-                    const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                ],
               ),
             ),
           ],

@@ -17,10 +17,7 @@ class RuteoService {
 
     final response = await http.get(
       uri,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
+      headers: ApiConfig.headersAuth(token),
     );
 
     if (response.statusCode == 200) {
